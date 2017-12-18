@@ -8,7 +8,7 @@ type (
 	}
 
 	Base struct {
-		Id bson.ObjectId `json:"id" bson:"_id,omitempty"`
+		Id bson.ObjectId `bson:"_id,omitempty" json:"id"`
 	}
 )
 
