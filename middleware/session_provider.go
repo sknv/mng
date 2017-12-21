@@ -9,7 +9,7 @@ import (
 
 type ctxKey string
 
-const CtxKeyMgoSession = ctxKey("_mgo.Session")
+const ctxKeyMgoSession = ctxKey("_mgo.Session")
 
 // WithMgoSession puts a Mongo session instance to a request context.
 func WithMgoSession(
@@ -22,11 +22,16 @@ func WithMgoSession(
 			defer sessionCopy.Close()
 
 			// Put the database into a request context.
-			ctx := context.WithValue(r.Context(), CtxKeyMgoSession, sessionCopy)
+			ctx := context.WithValue(r.Context(), ctxKeyMgoSession, sessionCopy)
 
 			// Process request.
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 		return http.HandlerFunc(fn)
 	}
+}
+
+// GetMgoSession returns a Mongo session from a request context.
+func GetMgoSession(r *http.Request) *mgo.Session {
+	return r.Context().Value(ctxKeyMgoSession).(*mgo.Session)
 }

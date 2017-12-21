@@ -7,20 +7,20 @@ type (
 		GetId() bson.ObjectId
 	}
 
-	Base struct {
+	BaseDocument struct {
 		Id bson.ObjectId `bson:"_id,omitempty" json:"id"`
 	}
 )
 
-func (d *Base) GetId() bson.ObjectId {
+func (d *BaseDocument) GetId() bson.ObjectId {
 	return d.Id
 }
 
-func (d *Base) BeforeInsert() {
+func (d *BaseDocument) BeforeInsert() {
 	d.initId()
 }
 
-func (d *Base) initId() {
+func (d *BaseDocument) initId() {
 	if d.Id == "" {
 		d.Id = bson.NewObjectId()
 	}
