@@ -10,7 +10,7 @@ import (
 var LimitMax = 50
 
 type (
-	BaseRepository struct {
+	Base struct {
 		CollectionName string
 	}
 
@@ -21,23 +21,21 @@ type (
 	}
 )
 
-func (r *BaseRepository) CollectionForDb(db *mgo.Database) *mgo.Collection {
+func (r *Base) CollectionForDb(db *mgo.Database) *mgo.Collection {
 	return db.C(r.CollectionName)
 }
 
-func (r *BaseRepository) CollectionForSession(
-	session *mgo.Session,
-) *mgo.Collection {
+func (r *Base) CollectionForSession(session *mgo.Session) *mgo.Collection {
 	db := session.DB("")
 	return r.CollectionForDb(db)
 }
 
-func (r *BaseRepository) Find(session *mgo.Session, query bson.M) *mgo.Query {
+func (r *Base) Find(session *mgo.Session, query bson.M) *mgo.Query {
 	c := r.CollectionForSession(session)
 	return c.Find(query)
 }
 
-func (r *BaseRepository) FindPage(
+func (r *Base) FindPage(
 	session *mgo.Session, query bson.M, params PagingParams,
 ) *mgo.Query {
 	qry := r.Find(session, query)
@@ -61,7 +59,7 @@ func (r *BaseRepository) FindPage(
 	return qry
 }
 
-func (r *BaseRepository) Insert(session *mgo.Session, doc interface{}) error {
+func (r *Base) Insert(session *mgo.Session, doc interface{}) error {
 	col := r.CollectionForSession(session)
 
 	// Before callbacks section.
@@ -77,7 +75,7 @@ func (r *BaseRepository) Insert(session *mgo.Session, doc interface{}) error {
 	return err
 }
 
-func (r *BaseRepository) Update(
+func (r *Base) Update(
 	session *mgo.Session, selector interface{}, update interface{},
 ) error {
 	col := r.CollectionForSession(session)
@@ -95,22 +93,16 @@ func (r *BaseRepository) Update(
 	return err
 }
 
-func (r *BaseRepository) UpdateDoc(
-	session *mgo.Session, doc document.IIdentifier,
-) error {
+func (r *Base) UpdateDoc(session *mgo.Session, doc document.IIdentifier) error {
 	return r.Update(session, bson.M{"_id": doc.GetId()}, doc)
 }
 
-func (r *BaseRepository) Remove(
-	session *mgo.Session, selector interface{},
-) error {
+func (r *Base) Remove(session *mgo.Session, selector interface{}) error {
 	col := r.CollectionForSession(session)
 	return col.Remove(selector)
 }
 
-func (r *BaseRepository) RemoveDoc(
-	session *mgo.Session, doc document.IIdentifier,
-) error {
+func (r *Base) RemoveDoc(session *mgo.Session, doc document.IIdentifier) error {
 	// Before callbacks section.
 	doBeforeRemoveIfNeeded(doc)
 
