@@ -3,14 +3,14 @@ package document
 import "time"
 
 type Timestampable struct {
-	Base `bson:",inline"`
+	BaseDocument `bson:",inline"`
 
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
 }
 
 func (t *Timestampable) BeforeInsert() {
-	t.Base.BeforeInsert()
+	t.BaseDocument.BeforeInsert()
 
 	t.initTimestamp()
 }

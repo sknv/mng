@@ -7,11 +7,10 @@ import (
 	"github.com/sknv/mng/odm/document"
 )
 
-var LimitMax = 50
-
 type (
-	Base struct {
+	BaseRepository struct {
 		CollectionName string
+		MaxLimit       int
 	}
 
 	PagingParams struct {
@@ -21,27 +20,27 @@ type (
 	}
 )
 
-func (r *Base) CollectionForDb(db *mgo.Database) *mgo.Collection {
+func (r *BaseRepository) CollectionForDb(db *mgo.Database) *mgo.Collection {
 	return db.C(r.CollectionName)
 }
 
-func (r *Base) CollectionForSession(session *mgo.Session) *mgo.Collection {
+func (r *BaseRepository) CollectionForSession(session *mgo.Session) *mgo.Collection {
 	db := session.DB("")
 	return r.CollectionForDb(db)
 }
 
-func (r *Base) Find(session *mgo.Session, query bson.M) *mgo.Query {
+func (r *BaseRepository) Find(session *mgo.Session, query bson.M) *mgo.Query {
 	c := r.CollectionForSession(session)
 	return c.Find(query)
 }
 
-func (r *Base) FindPage(
+func (r *BaseRepository) FindPage(
 	session *mgo.Session, query bson.M, params PagingParams,
 ) *mgo.Query {
 	qry := r.Find(session, query)
 
 	// Set limit and skip params.
-	limit := LimitMax
+	limit := r.MaxLimit
 	if params.Limit > 0 && params.Limit < limit {
 		limit = params.Limit // Restrict fetching limit.
 	}
@@ -59,7 +58,7 @@ func (r *Base) FindPage(
 	return qry
 }
 
-func (r *Base) Insert(session *mgo.Session, doc interface{}) error {
+func (r *BaseRepository) Insert(session *mgo.Session, doc interface{}) error {
 	col := r.CollectionForSession(session)
 
 	// Before callbacks section.
@@ -75,7 +74,7 @@ func (r *Base) Insert(session *mgo.Session, doc interface{}) error {
 	return err
 }
 
-func (r *Base) Update(
+func (r *BaseRepository) Update(
 	session *mgo.Session, selector interface{}, update interface{},
 ) error {
 	col := r.CollectionForSession(session)
@@ -93,16 +92,16 @@ func (r *Base) Update(
 	return err
 }
 
-func (r *Base) UpdateDoc(session *mgo.Session, doc document.IIdentifier) error {
+func (r *BaseRepository) UpdateDoc(session *mgo.Session, doc document.IIdentifier) error {
 	return r.Update(session, bson.M{"_id": doc.GetId()}, doc)
 }
 
-func (r *Base) Remove(session *mgo.Session, selector interface{}) error {
+func (r *BaseRepository) Remove(session *mgo.Session, selector interface{}) error {
 	col := r.CollectionForSession(session)
 	return col.Remove(selector)
 }
 
-func (r *Base) RemoveDoc(session *mgo.Session, doc document.IIdentifier) error {
+func (r *BaseRepository) RemoveDoc(session *mgo.Session, doc document.IIdentifier) error {
 	// Before callbacks section.
 	doBeforeRemoveIfNeeded(doc)
 
