@@ -8,6 +8,6 @@ import (
 )
 
 // BootstrapRouter puts a Mongo session to a request context.
-func BootstrapRouter(r chi.Router, session *mgo.Session) {
-	r.Use(middleware.WithMgoSession(session))
+func BootstrapRouter(router chi.Router, session *mgo.Session) {
+	router.Use(middleware.WithMgoSession(session))
 }

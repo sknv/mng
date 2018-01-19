@@ -14,14 +14,6 @@ func ParseQuery(str string) (bson.M, error) {
 	return result, err
 }
 
-// ParseSort parses given string
-// and returns parsed slice of sorting rules and an error if any raised.
-func ParseSort(str string) ([]string, error) {
-	var result []string
-	err := parseString(str, &result)
-	return result, err
-}
-
 func parseString(str string, result interface{}) error {
 	if str == "" {
 		return nil
